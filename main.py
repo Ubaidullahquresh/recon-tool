@@ -25,39 +25,61 @@ def main():
     args = parse_args()
     results = []
 
+    # Auto-enable all modules if --mode all
+    if args.mode == "all":
+        args.whois = True
+        args.dns = True
+        args.subdomains = True
+        args.portscan = True
+        args.banner = True
+        args.tech = True
+
     print(f"[+] Starting reconnaissance on: {args.target}\n")
 
     # Passive recon
     if args.mode in ["passive", "all"]:
         if args.whois:
             print("[*] Running WHOIS lookup...")
-            results.append(whois_lookup.whois_lookup(args.target))
+            output = whois_lookup.whois_lookup(args.target)
+            if output:
+                results.append("=== WHOIS LOOKUP ===\n" + output)
 
         if args.dns:
             print("[*] Running DNS enumeration...")
-            results.append(dns_enum.dns_enum(args.target))
+            output = dns_enum.dns_enum(args.target)
+            if output:
+                results.append("=== DNS ENUMERATION ===\n" + output)
 
         if args.subdomains:
             print("[*] Running subdomain enumeration...")
-            results.append(subdomain_enum.subdomain_enum(args.target))
+            output = subdomain_enum.subdomain_enum(args.target)
+            if output:
+                results.append("=== SUBDOMAIN ENUMERATION ===\n" + output)
 
     # Active recon
     if args.mode in ["active", "all"]:
         if args.portscan:
             print("[*] Running port scan...")
-            results.append(port_scan.port_scan(args.target))
+            output = port_scan.port_scan(args.target)
+            if output:
+                results.append("=== PORT SCAN ===\n" + output)
 
         if args.banner:
             print("[*] Running banner grabbing...")
-            results.append(banner_grab.banner_grab(args.target))
+            output = banner_grab.banner_grab(args.target)
+            if output:
+                results.append("=== BANNER GRABBING ===\n" + output)
 
         if args.tech:
             print("[*] Running technology detection...")
-            results.append(tech_detect.tech_detect(args.target))
+            output = tech_detect.tech_detect(args.target)
+            if output:
+                results.append("=== TECHNOLOGY DETECTION ===\n" + output)
 
     final_report = "\n\n".join(results)
+
     print("\n[+] Reconnaissance Complete!\n")
-    print(final_report)
+    print(final_report if final_report else "[!] No data was collected. Please check the modules.")
 
     # Save to file
     if args.output:
