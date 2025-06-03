@@ -41,18 +41,21 @@ def main():
         if args.whois:
             print("[*] Running WHOIS lookup...")
             output = whois_lookup.whois_lookup(args.target)
+            print(f"[DEBUG] WHOIS Output: {output}")
             if output:
                 results.append("=== WHOIS LOOKUP ===\n" + output)
 
         if args.dns:
             print("[*] Running DNS enumeration...")
             output = dns_enum.dns_enum(args.target)
+            print(f"[DEBUG] DNS Output: {output}")
             if output:
                 results.append("=== DNS ENUMERATION ===\n" + output)
 
         if args.subdomains:
             print("[*] Running subdomain enumeration...")
             output = subdomain_enum.subdomain_enum(args.target)
+            print(f"[DEBUG] Subdomains Output: {output}")
             if output:
                 results.append("=== SUBDOMAIN ENUMERATION ===\n" + output)
 
@@ -61,18 +64,21 @@ def main():
         if args.portscan:
             print("[*] Running port scan...")
             output = port_scan.port_scan(args.target)
+            print(f"[DEBUG] Portscan Output: {output}")
             if output:
                 results.append("=== PORT SCAN ===\n" + output)
 
         if args.banner:
             print("[*] Running banner grabbing...")
             output = banner_grab.banner_grab(args.target)
+            print(f"[DEBUG] Banner Output: {output}")
             if output:
                 results.append("=== BANNER GRABBING ===\n" + output)
 
         if args.tech:
             print("[*] Running technology detection...")
             output = tech_detect.tech_detect(args.target)
+            print(f"[DEBUG] Tech Detect Output: {output}")
             if output:
                 results.append("=== TECHNOLOGY DETECTION ===\n" + output)
 
