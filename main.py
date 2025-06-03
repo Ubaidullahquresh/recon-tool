@@ -1,26 +1,72 @@
-# main.py
 import argparse
 from modules.passive import whois_lookup, dns_enum, subdomain_enum
+from modules.active import port_scan, banner_grab, tech_detect
 
-parser = argparse.ArgumentParser(description="Custom Recon Tool")
-parser.add_argument("domain", help="Target domain (e.g. example.com)")
-parser.add_argument("--whois", action="store_true", help="Run WHOIS Lookup")
-parser.add_argument("--dns", action="store_true", help="Run DNS Enumeration")
-parser.add_argument("--subs", action="store_true", help="Run Subdomain Enumeration")
+def parse_args():
+    parser = argparse.ArgumentParser(description="Custom Recon Tool by Ubaidullah Qureshi")
 
-args = parser.parse_args()
+    parser.add_argument("--target", required=True, help="Target domain or IP")
+    parser.add_argument("--mode", choices=["passive", "active", "all"], default="all", help="Recon mode to run")
+    parser.add_argument("--output", help="Save results to file (e.g., report.txt)")
 
-if args.whois:
-    print("[*] Running WHOIS Lookup...")
-    print(whois_lookup.whois_lookup(args.domain))
+    # Passive options
+    parser.add_argument("--whois", action="store_true", help="Run WHOIS lookup")
+    parser.add_argument("--dns", action="store_true", help="Run DNS enumeration")
+    parser.add_argument("--subdomains", action="store_true", help="Run subdomain enumeration")
 
-if args.dns:
-    print("[*] Running DNS Enumeration...")
-    records = dns_enum.get_dns_records(args.domain)
-    for rtype, recs in records.items():
-        print(f"{rtype}: {', '.join(recs)}")
+    # Active options
+    parser.add_argument("--portscan", action="store_true", help="Run port scanning")
+    parser.add_argument("--banner", action="store_true", help="Run banner grabbing")
+    parser.add_argument("--tech", action="store_true", help="Run technology detection")
 
-if args.subs:
-    print("[*] Running Subdomain Enumeration...")
-    subs = subdomain_enum.subdomain_enum_crtsh(args.domain)
-    print("\n".join(subs))
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    results = []
+
+    print(f"[+] Starting reconnaissance on: {args.target}\n")
+
+    # Passive recon
+    if args.mode in ["passive", "all"]:
+        if args.whois:
+            print("[*] Running WHOIS lookup...")
+            results.append(whois_lookup.whois_lookup(args.target))
+
+        if args.dns:
+            print("[*] Running DNS enumeration...")
+            results.append(dns_enum.dns_enum(args.target))
+
+        if args.subdomains:
+            print("[*] Running subdomain enumeration...")
+            results.append(subdomain_enum.subdomain_enum(args.target))
+
+    # Active recon
+    if args.mode in ["active", "all"]:
+        if args.portscan:
+            print("[*] Running port scan...")
+            results.append(port_scan.port_scan(args.target))
+
+        if args.banner:
+            print("[*] Running banner grabbing...")
+            results.append(banner_grab.banner_grab(args.target))
+
+        if args.tech:
+            print("[*] Running technology detection...")
+            results.append(tech_detect.tech_detect(args.target))
+
+    final_report = "\n\n".join(results)
+    print("\n[+] Reconnaissance Complete!\n")
+    print(final_report)
+
+    # Save to file
+    if args.output:
+        try:
+            with open(args.output, "w") as f:
+                f.write(final_report)
+            print(f"\n[+] Results saved to: {args.output}")
+        except Exception as e:
+            print(f"[-] Failed to save output: {e}")
+
+if __name__ == "__main__":
+    main()
